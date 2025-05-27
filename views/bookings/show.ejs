@@ -1,0 +1,136 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="mb-0">Booking Details</h2>
+                        <span class="badge <%= booking.status === 'paid' ? 'bg-success' : booking.status === 'pending' ? 'bg-warning' : 'bg-danger' %> fs-6">
+                            <%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %>
+                        </span>
+                    </div>
+
+                    <!-- Property Details -->
+                    <div class="property-details mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="<%= booking.listing.image.url %>" class="img-fluid rounded" alt="<%= booking.listing.title %>">
+                            </div>
+                            <div class="col-md-8">
+                                <h4><%= booking.listing.title %></h4>
+                                <p class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-2"></i>
+                                    <%= booking.listing.location %>, <%= booking.listing.country %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Information -->
+                    <div class="booking-info mb-4">
+                        <h5 class="mb-3">Booking Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Check-in Date</label>
+                                    <p class="mb-0"><%= new Date(booking.checkIn).toLocaleDateString() %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Check-out Date</label>
+                                    <p class="mb-0"><%= new Date(booking.checkOut).toLocaleDateString() %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Number of Nights</label>
+                                    <p class="mb-0"><%= booking.nights %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Booking Date</label>
+                                    <p class="mb-0"><%= new Date(booking.createdAt).toLocaleDateString() %></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="payment-info mb-4">
+                        <h5 class="mb-3">Payment Information</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Price per Night</label>
+                                    <p class="mb-0">₹<%= booking.listing.price.toLocaleString('en-IN') %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-item mb-3">
+                                    <label class="text-muted">Total Amount</label>
+                                    <p class="mb-0 fw-bold">₹<%= booking.totalPrice.toLocaleString('en-IN') %></p>
+                                </div>
+                            </div>
+                        </div>
+                        <% if(booking.status === 'paid') { %>
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This booking has been paid. Cancellations and refunds are not available.
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <% if(booking.status === 'pending') { %>
+                            <a href="/payments/<%= booking._id %>" class="btn btn-success">
+                                <i class="fas fa-credit-card me-2"></i>Complete Payment
+                            </a>
+                            <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                    <i class="fas fa-times-circle me-2"></i>Cancel Booking
+                                </button>
+                            </form>
+                        <% } else if(booking.status === 'paid') { %>
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Payment completed successfully
+                            </div>
+                        <% } %>
+                        <a href="/listings/<%= booking.listing._id %>" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>View Property
+                        </a>
+                        <a href="/bookings" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Bookings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-item label {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-item p {
+        font-size: 1.1rem;
+    }
+
+    .badge {
+        padding: 0.5em 1em;
+    }
+
+    .property-details img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+</style> 

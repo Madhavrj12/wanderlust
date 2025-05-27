@@ -1,0 +1,472 @@
+<% layout("/layouts/boilerplate") %>
+
+<!-- Add Flatpickr CSS and JS in the head section -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Main Listing Section -->
+        <div class="col-lg-8">
+            <div class="listing-details">
+                <div class="card border-0 shadow-sm">
+                    <img src="<%= listing.image.url %>" class="card-img-top listing-image" alt="<%= listing.title %>">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="card-title mb-0"><%= listing.title %></h2>
+                            <span class="badge bg-primary fs-6"><%= listing.category %></span>
+                        </div>
+                        
+                        <div class="listing-info mb-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                <span><%= listing.location %>, <%= listing.country %></span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tag me-2 text-success"></i>
+                                <span class="fs-4 fw-bold">&#8377; <%= listing.price.toLocaleString("en-IN") %> <small class="text-muted">/ night</small></span>
+                            </div>
+                        </div>
+
+                        <div class="listing-description mb-4">
+                            <h5 class="mb-3">Description</h5>
+                            <p class="text-muted"><%= listing.description %></p>
+                        </div>
+
+                        <% if(currUser && currUser._id.equals(listing.owner._id)) { %>
+                            <div class="owner-actions d-flex gap-2">
+                                <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a>
+                                <form action="/listings/<%= listing._id %>?_method=DELETE" method="post" class="d-inline">
+                                    <button class="btn btn-outline-danger">
+                                        <i class="fas fa-trash me-2"></i>Delete
+                                    </button>
+                                </form>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Section -->
+        <div class="col-lg-4">
+            <div class="booking-section">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4">Book Your Stay</h4>
+                        <% if(currUser && !currUser._id.equals(listing.owner._id)) { %>
+                            <form action="/listings/<%= listing._id %>/book" method="post" id="bookingForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Check-in Date</label>
+                                    <input type="text" name="checkIn" class="form-control datepicker" id="checkIn" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Check-out Date</label>
+                                    <input type="text" name="checkOut" class="form-control datepicker" id="checkOut" required>
+                                </div>
+                                <div class="booking-summary mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Price per night:</span>
+                                        <span>&#8377; <%= listing.price.toLocaleString("en-IN") %></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Number of nights:</span>
+                                        <span id="nights">0</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total price:</span>
+                                        <span id="totalPrice">&#8377; 0</span>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-calendar-check me-2"></i>Book Now
+                                </button>
+                            </form>
+                        <% } else if(!currUser) { %>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Please <a href="/login" class="alert-link">login</a> to book this listing.
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You cannot book your own listing.
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section">
+                    <% if(currUser) { %>
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-body p-4">
+                                <h4 class="mb-4">Leave a Review</h4>
+                                <form action="/listings/<%= listing._id %>/reviews" method="post" novalidate class="needs-validation">
+                                    <div class="mb-3">
+                                        <label class="form-label">Rating</label>
+                                        <fieldset class="starability-slot">
+                                            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+                                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                                            <label for="first-rate1" title="Terrible">1 star</label>
+                                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                                            <label for="first-rate2" title="Not good">2 stars</label>
+                                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                                            <label for="first-rate3" title="Average">3 stars</label>
+                                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                                            <label for="first-rate4" title="Very good">4 stars</label>
+                                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                                            <label for="first-rate5" title="Amazing">5 stars</label>
+                                        </fieldset>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label">Comments</label>
+                                        <textarea name="review[comment]" class="form-control" id="comment" rows="4" required></textarea>
+                                    </div>
+                                    <button class="btn btn-primary w-100">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Review
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h4 class="mb-4">All Reviews</h4>
+                            <div class="reviews-list">
+                                <% for(review of listing.reviews) { %>
+                                    <div class="review-card mb-4 pb-4 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="mb-1">@<%= review.author.username %></h6>
+                                                <div class="starability-result" data-rating="<%= review.rating %>"></div>
+                                            </div>
+                                            <% if(currUser && currUser._id.equals(review.author._id)) { %>
+                                                <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="post" class="d-inline">
+                                                    <button class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                        <p class="text-muted mb-0"><%= review.comment %></p>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .listing-image {
+        height: 500px;
+        object-fit: cover;
+        border-radius: 1rem 1rem 0 0;
+    }
+
+    .listing-details {
+        margin-bottom: 2rem;
+    }
+
+    .listing-info {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .owner-actions {
+        padding-top: 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .reviews-section {
+        position: sticky;
+        top: 2rem;
+    }
+
+    .review-card:last-child {
+        border-bottom: none !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .starability-slot {
+        margin-bottom: 1rem;
+    }
+
+    .starability-result {
+        margin-top: 0.5rem;
+    }
+
+    .booking-summary {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .badge.bg-primary {
+        background-color: #fe424d !important;
+    }
+
+    .btn-primary {
+        background-color: #fe424d;
+        border-color: #fe424d;
+    }
+
+    .btn-primary:hover {
+        background-color: #e63a44;
+        border-color: #e63a44;
+    }
+
+    .btn-outline-primary {
+        color: #fe424d;
+        border-color: #fe424d;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #fe424d;
+        color: white;
+    }
+
+    .form-control:focus {
+        border-color: #fe424d;
+        box-shadow: 0 0 0 0.25rem rgba(254, 66, 77, 0.25);
+    }
+
+    .flatpickr-day.selected {
+        background: #fe424d !important;
+        border-color: #fe424d !important;
+    }
+
+    .flatpickr-day:hover {
+        background: #e63a44 !important;
+        border-color: #e63a44 !important;
+    }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months {
+        color: #fe424d;
+    }
+
+    .flatpickr-months .flatpickr-month {
+        color: #fe424d;
+    }
+
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month {
+        color: #fe424d;
+    }
+
+    .flatpickr-months .flatpickr-prev-month:hover,
+    .flatpickr-months .flatpickr-next-month:hover {
+        color: #e63a44;
+    }
+
+    @media (max-width: 768px) {
+        .listing-image {
+            height: 300px;
+        }
+
+        .reviews-section {
+            position: static;
+            margin-top: 2rem;
+        }
+    }
+
+    /* Date input styling */
+    input[type="date"] {
+        position: relative;
+        cursor: pointer;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+    }
+
+    /* Disable specific dates */
+    input[type="date"]::-webkit-datetime-edit {
+        cursor: pointer;
+    }
+
+    .flatpickr-calendar {
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 0.5rem;
+    }
+
+    .flatpickr-day.disabled {
+        color: #ccc;
+        background: #f8f9fa;
+        cursor: not-allowed;
+    }
+
+    .flatpickr-day.booked {
+        color: #dc3545;
+        background: #fff;
+        text-decoration: line-through;
+        cursor: not-allowed;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        const checkInInput = document.getElementById('checkIn');
+        const checkOutInput = document.getElementById('checkOut');
+        const nightsSpan = document.getElementById('nights');
+        const totalPriceSpan = document.getElementById('totalPrice');
+        const pricePerNight = <%= listing.price %>;
+        let bookedDates = [];
+
+        // Fetch booked dates
+        fetch('/listings/<%= listing._id %>/available-dates')
+            .then(response => response.json())
+            .then(dates => {
+                bookedDates = dates;
+                initializeDatePickers();
+            })
+            .catch(error => console.error('Error fetching dates:', error));
+
+        function initializeDatePickers() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Create an array of all booked dates
+            const bookedDatesArray = bookedDates.reduce((dates, booking) => {
+                const start = new Date(booking.start);
+                const end = new Date(booking.end);
+                const current = new Date(start);
+                
+                while (current <= end) {
+                    dates.push(new Date(current));
+                    current.setDate(current.getDate() + 1);
+                }
+                return dates;
+            }, []);
+
+            // Common configuration for both pickers
+            const commonConfig = {
+                minDate: today,
+                disable: bookedDatesArray,
+                dateFormat: "Y-m-d",
+                allowInput: true,
+                static: true,
+                enableTime: false,
+                time_24hr: false,
+                onChange: function(selectedDates, dateStr, instance) {
+                    // Additional validation to prevent selecting booked dates
+                    if (selectedDates[0]) {
+                        const selectedDate = selectedDates[0];
+                        const isBooked = bookedDatesArray.some(date => 
+                            date.getFullYear() === selectedDate.getFullYear() &&
+                            date.getMonth() === selectedDate.getMonth() &&
+                            date.getDate() === selectedDate.getDate()
+                        );
+                        
+                        if (isBooked) {
+                            instance.clear();
+                            return;
+                        }
+                    }
+                }
+            };
+
+            // Initialize check-in date picker
+            const checkInPicker = flatpickr(checkInInput, {
+                ...commonConfig,
+                onChange: function(selectedDates) {
+                    if (selectedDates[0]) {
+                        // Set minimum check-out date to be the day after check-in
+                        const nextDay = new Date(selectedDates[0]);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        
+                        // Update check-out picker's minimum date
+                        checkOutPicker.set('minDate', nextDay);
+                        
+                        // If check-out is not selected, open the check-out picker
+                        if (!checkOutPicker.selectedDates[0]) {
+                            checkOutPicker.open();
+                        }
+                        
+                        // If check-out date is before or same as check-in, clear it
+                        if (checkOutPicker.selectedDates[0] && 
+                            checkOutPicker.selectedDates[0] <= selectedDates[0]) {
+                            checkOutPicker.clear();
+                        }
+                        updateBookingSummary();
+                    }
+                }
+            });
+
+            // Initialize check-out date picker
+            const checkOutPicker = flatpickr(checkOutInput, {
+                ...commonConfig,
+                onChange: function(selectedDates) {
+                    if (selectedDates[0]) {
+                        // If check-in date is not selected, set it to one day before check-out
+                        if (!checkInPicker.selectedDates[0]) {
+                            const prevDay = new Date(selectedDates[0]);
+                            prevDay.setDate(prevDay.getDate() - 1);
+                            checkInPicker.setDate(prevDay);
+                        } else {
+                            // Ensure check-out is at least one day after check-in
+                            const minCheckOut = new Date(checkInPicker.selectedDates[0]);
+                            minCheckOut.setDate(minCheckOut.getDate() + 1);
+                            
+                            if (selectedDates[0] <= checkInPicker.selectedDates[0]) {
+                                checkOutPicker.setDate(minCheckOut);
+                            }
+                        }
+                        updateBookingSummary();
+                    }
+                }
+            });
+
+            // Add form validation
+            document.getElementById('bookingForm').addEventListener('submit', function(e) {
+                const checkIn = checkInPicker.selectedDates[0];
+                const checkOut = checkOutPicker.selectedDates[0];
+                
+                if (!checkIn || !checkOut) {
+                    e.preventDefault();
+                    alert('Please select both check-in and check-out dates');
+                    return;
+                }
+                
+                if (checkOut <= checkIn) {
+                    e.preventDefault();
+                    alert('Check-out date must be at least one day after check-in date');
+                    return;
+                }
+            });
+
+            function updateBookingSummary() {
+                const checkIn = checkInPicker.selectedDates[0];
+                const checkOut = checkOutPicker.selectedDates[0];
+
+                if (checkIn && checkOut) {
+                    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+                    if (nights > 0) {
+                        nightsSpan.textContent = nights;
+                        totalPriceSpan.textContent = '₹' + (nights * pricePerNight).toLocaleString('en-IN');
+                    } else {
+                        nightsSpan.textContent = '0';
+                        totalPriceSpan.textContent = '₹0';
+                    }
+                }
+            }
+        }
+    });
+</script>
+

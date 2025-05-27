@@ -1,0 +1,207 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Complete Your Booking</h2>
+                    
+                    <!-- Booking Summary -->
+                    <div class="booking-summary mb-4">
+                        <h5 class="mb-3">Booking Summary</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Check-in:</span>
+                            <span><%= booking.checkIn.toLocaleDateString() %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Check-out:</span>
+                            <span><%= booking.checkOut.toLocaleDateString() %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Number of nights:</span>
+                            <span><%= booking.nights %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Price per night:</span>
+                            <span>₹<%= listing.price.toLocaleString('en-IN') %></span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>Total amount:</span>
+                            <span>₹<%= booking.totalPrice.toLocaleString('en-IN') %></span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form action="/payments/process/<%= booking._id %>" method="POST" id="payment-form">
+                        <div class="mb-4">
+                            <h5 class="mb-3">Payment Details</h5>
+                            
+                            <!-- Card Number -->
+                            <div class="mb-3">
+                                <label class="form-label">Card Number</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                                    <span class="input-group-text">
+                                        <i class="fas fa-credit-card"></i>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <!-- Expiry Date -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+                                </div>
+
+                                <!-- CVV -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" placeholder="123" required>
+                                </div>
+                            </div>
+
+                            <!-- Card Holder Name -->
+                            <div class="mb-3">
+                                <label class="form-label">Card Holder Name</label>
+                                <input type="text" class="form-control" id="cardHolderName" placeholder="John Doe" required>
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-lock me-2"></i>Pay ₹<%= booking.totalPrice.toLocaleString('en-IN') %>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms and Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>By proceeding with the payment, you agree to:</p>
+                <ul>
+                    <li>Pay the full amount for your stay</li>
+                    <li>Follow the property's rules and regulations</li>
+                    <li>Respect the check-in and check-out times</li>
+                    <li>Understand our cancellation policy</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .booking-summary {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+    }
+
+    .input-group-text {
+        background-color: transparent;
+        border-left: none;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+
+    .form-control:focus + .input-group-text {
+        border-color: #dee2e6;
+    }
+
+    #cardNumber, #expiryDate, #cvv {
+        font-family: monospace;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Format card number
+        const cardNumber = document.getElementById('cardNumber');
+        cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})/g, '$1 ').trim();
+            e.target.value = value;
+        });
+
+        // Format expiry date
+        const expiryDate = document.getElementById('expiryDate');
+        expiryDate.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.slice(0,2) + '/' + value.slice(2,4);
+            }
+            e.target.value = value;
+        });
+
+        // Format CVV
+        const cvv = document.getElementById('cvv');
+        cvv.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0,3);
+        });
+
+        // Form validation
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic validation
+            if (!validateCard()) {
+                return;
+            }
+
+            // If validation passes, submit the form
+            this.submit();
+        });
+
+        function validateCard() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (cardNumber.length !== 16) {
+                alert('Please enter a valid 16-digit card number');
+                return false;
+            }
+
+            if (!expiryDate.match(/^\d{2}\/\d{2}$/)) {
+                alert('Please enter a valid expiry date (MM/YY)');
+                return false;
+            }
+
+            if (cvv.length !== 3) {
+                alert('Please enter a valid 3-digit CVV');
+                return false;
+            }
+
+            return true;
+        }
+    });
+</script> 
