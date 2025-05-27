@@ -4,15 +4,12 @@ module.exports.index = async (req,res)=>{
     const {category, search} = req.query;
     let allListings;
     
-    // Build the query object
     let query = {};
     
-    // Add category filter if provided
     if(category) {
         query.category = category;
     }
     
-    // Add search filter if provided
     if(search) {
         query.$or = [
             { title: { $regex: search, $options: 'i' } },
@@ -21,8 +18,7 @@ module.exports.index = async (req,res)=>{
         ];
     }
     
-    // Execute the query
-    allListings = await Listing.find(query);
+    allListings = await Listing.find(query).populate("owner");
     
     const categories = ["Beach", "Mountain", "City", "Historic", "Unique", "Lake", "Luxury", "Ski", "Safari", "Countryside", "Tropical"];
     res.render("listings/index.ejs", {
@@ -39,10 +35,18 @@ module.exports.renderNewForm = (req,res)=>{
 
 module.exports.showListing = async (req,res)=>{
     let {id} = req.params;
-    const listing = await Listing.findById(id).populate({path:"reviews",populate:{
-        path:"author",
-    },})
-    .populate("owner");
+    const listing = await Listing.findById(id)
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "author"
+            }
+        })
+        .populate({
+            path: "owner",
+            select: "_id email username"
+        });
+    
     if(!listing){
         req.flash("error","Listing you requested for does not exist!");
         res.redirect("/listings");
@@ -85,10 +89,8 @@ module.exports.updateListing = async (req,res,next)=>{
     res.redirect(`/listings/${id}`);
 };
 
-
 module.exports.deleteListing = async (req,res,next)=>{
     let {id} = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
     res.redirect("/listings");
 };

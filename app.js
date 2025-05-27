@@ -16,7 +16,6 @@ const User = require("./models/user.js")
 
 app.use(cookieParser());
 
-
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
@@ -32,13 +31,11 @@ app.set(path.join(__dirname,"views"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
 
-
 const MONGO_URL = process.env.MONGO_URL;
 
 async function main() {
     try {
         await mongoose.connect(MONGO_URL);
-        console.log("MongoDB connected!");
     } catch (err) {
         console.error("MongoDB connection error:", err);
     }
@@ -76,7 +73,7 @@ app.use((req,res,next)=>{
 app.get("/",(req,res)=>{
     res.redirect("/home");
 });
-// Place homeRouter before other routes to ensure it handles the root path
+
 app.use("/home", homeRouter);
 app.use("/listings", listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
@@ -84,18 +81,14 @@ app.use("/", userRouter);
 app.use("/payments", paymentRouter);
 app.use("/bookings", bookingRouter);
 
-
 app.all("*",(req,res,next)=>{
     next(new ExpressError(404,"Page Not Found!"));
 });
 
 app.use((err,req,res,next)=>{
     let{statusCode = 500, message="Something went wrong!"} = err;
-    //res.status(statusCode).send(message);
     res.status(statusCode).render("error.ejs",{err});
 });
-
-
 
 app.listen("9090",()=>{
     console.log("server is listening to port 9090");

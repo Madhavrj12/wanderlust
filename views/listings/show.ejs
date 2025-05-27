@@ -56,7 +56,17 @@
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
                         <h4 class="mb-4">Book Your Stay</h4>
-                        <% if(currUser && listing.owner && currUser._id && !currUser._id.equals(listing.owner._id)) { %>
+                        <% if(currUser && listing.owner && currUser._id && currUser._id.equals(listing.owner._id)) { %>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You cannot book your own listing.
+                            </div>
+                        <% } else if(!currUser) { %>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Please <a href="/login" class="alert-link">login</a> to book this listing.
+                            </div>
+                        <% } else { %>
                             <form action="/listings/<%= listing._id %>/book" method="post" id="bookingForm">
                                 <div class="mb-3">
                                     <label class="form-label">Check-in Date</label>
@@ -85,16 +95,6 @@
                                     <i class="fas fa-calendar-check me-2"></i>Book Now
                                 </button>
                             </form>
-                        <% } else if(!currUser) { %>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Please <a href="/login" class="alert-link">login</a> to book this listing.
-                            </div>
-                        <% } else { %>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                You cannot book your own listing.
-                            </div>
                         <% } %>
                     </div>
                 </div>
