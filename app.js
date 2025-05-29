@@ -36,6 +36,7 @@ const MONGO_URL = process.env.MONGO_URL;
 async function main() {
     try {
         await mongoose.connect(MONGO_URL);
+        console.log("mongodb connected");
     } catch (err) {
         console.error("MongoDB connection error:", err);
     }

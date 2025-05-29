@@ -9,27 +9,28 @@ const upload = multer({storage});
 const Booking = require("../models/booking");
 const Listing = require("../models/listing");
 
-
 //index route
 router.get("/",wrapAsync(listingController.index));
 
 //new 
 router.get("/new",isLoggedIn,listingController.renderNewForm);
 
+// My Listings Route - Must be before /:id route
+router.get("/my-listings", isLoggedIn, wrapAsync(listingController.myListings));
+
 //show Route
 router.get("/:id",wrapAsync(listingController.showListing));
 
 //create
-router.post("/",isLoggedIn,upload.single("listing[image]"),validateListing, wrapAsync(listingController.newListing));
-
+router.post("/", isLoggedIn, upload.single("listing[image]"), validateListing, wrapAsync(listingController.newListing));
 
 //edit Route
 router.get("/:id/edit",isLoggedIn,isOwner,wrapAsync(listingController.editListing));
 
-//updete
+//update
 router.put("/:id",isLoggedIn,isOwner,upload.single("listing[image]"),validateListing, wrapAsync(listingController.updateListing));
 
-//DELET ROUTE
+//DELETE ROUTE
 router.delete("/:id",isLoggedIn,isOwner,wrapAsync(listingController.deleteListing));
 
 // Booking routes

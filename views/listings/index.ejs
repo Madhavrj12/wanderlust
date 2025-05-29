@@ -5,22 +5,22 @@
         <div class="col-md-6">
             <h3>All Listings</h3>
         </div>
-        <div class="col-md-6">
-            <form action="/listings" method="get" class="d-flex gap-2">
-                <div class="input-group">
+        <div class="col-md-6 offset-md-3">
+            <form action="/listings" method="get" class="search-filter-section">
+                <div class="input-group flex-nowrap">
                     <input type="text" name="search" class="form-control" placeholder="Search by title, location, or country..." value="<%= searchQuery || '' %>">
+                    <select name="category" class="form-select" style="max-width:180px;" onchange="this.form.submit()">
+                        <option value="">All Categories</option>
+                        <% for(let category of categories) { %>
+                            <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>>
+                                <%= category %>
+                            </option>
+                        <% } %>
+                    </select>
                     <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
-                <select name="category" class="form-select w-auto" onchange="this.form.submit()">
-                    <option value="">All Categories</option>
-                    <% for(let category of categories) { %>
-                        <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>>
-                            <%= category %>
-                        </option>
-                    <% } %>
-                </select>
             </form>
         </div>
     </div>
@@ -46,7 +46,7 @@
         </div>
     <% } else { %>
         <!-- Category Navigation Bar -->
-        <div class="category-nav mb-4">
+        <div class="category-nav">
             <ul class="nav nav-pills justify-content-center">
                 <li class="nav-item">
                     <a class="nav-link <%= !selectedCategory ? 'active' : '' %>" href="/listings" data-bs-toggle="tooltip" title="All Categories">
@@ -111,11 +111,11 @@
             </ul>
         </div>
 
-        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xl-4 g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
             <% for(let list of allListings) { %>
                 <div class="col">
                     <a href="/listings/<%= list._id %>" class="listing-link">
-                        <div class="card listing-card h-100">
+                        <div class="card listing-card">
                             <div class="card-img-wrapper">
                                 <img src="<%= list.image.url %>" class="card-img-top" alt="Listing_image">
                                 <div class="card-img-overlay d-flex flex-column justify-content-between">
@@ -127,8 +127,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body p-4">
-                                <h5 class="card-title mb-3"><%= list.title %></h5>
+                            <div class="card-body">
+                                <h5 class="card-title"><%= list.title %></h5>
                                 <div class="listing-location">
                                     <i class="fas fa-map-marker-alt me-2 text-danger"></i>
                                     <small class="text-muted"><%= list.location %>, <%= list.country %></small>

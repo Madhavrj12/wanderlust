@@ -15,6 +15,26 @@
             <label for="image" class="form-label">Upload new Image</label>
             <input type="file" name="listing[image]" placeholder="Image URL" id="image" class="form-control" >
         </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select name="listing[category]" class="form-select" id="category" required>
+                <option value="">Select a category</option>
+                <option value="Beach" <%= listing.category === "Beach" ? "selected" : "" %>>Beach</option>
+                <option value="Mountain" <%= listing.category === "Mountain" ? "selected" : "" %>>Mountain</option>
+                <option value="City" <%= listing.category === "City" ? "selected" : "" %>>City</option>
+                <option value="Historic" <%= listing.category === "Historic" ? "selected" : "" %>>Historic</option>
+                <option value="Unique" <%= listing.category === "Unique" ? "selected" : "" %>>Unique</option>
+                <option value="Lake" <%= listing.category === "Lake" ? "selected" : "" %>>Lake</option>
+                <option value="Luxury" <%= listing.category === "Luxury" ? "selected" : "" %>>Luxury</option>
+                <option value="Ski" <%= listing.category === "Ski" ? "selected" : "" %>>Ski</option>
+                <option value="Safari" <%= listing.category === "Safari" ? "selected" : "" %>>Safari</option>
+                <option value="Countryside" <%= listing.category === "Countryside" ? "selected" : "" %>>Countryside</option>
+                <option value="Tropical" <%= listing.category === "Tropical" ? "selected" : "" %>>Tropical</option>
+            </select>
+            <div class="invalid-feedback">
+                Please select a category
+            </div>
+        </div>
         <div class="row">
         <div class="mb-3 col-md-4" >
             <label for="price" class="form-label">Price</label>
