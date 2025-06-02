@@ -31,4 +31,4 @@ Wonderlust is a web application inspired by Airbnb that lets users discover, lis
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/Madhavrj12/wanderlust.git
-   cd wonderlust
+   cd wanderlust
